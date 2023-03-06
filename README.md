@@ -3,6 +3,10 @@
 
 Gerenciador de combinações da Megasena, com recursos de importação dos sorteios, geração de combinações, análises estatísticas básicas e via redes neurais.
 
+Implementação de Redes Neurais adaptado de João Paulo Schwarz Schuler a partir do [portal CAI (Conscious Artificial Intelligence)](https://sourceforge.net/projects/cai/).
+
+Projeto desenvolvido com a ferramenta open-source Lazarus (Pascal).
+
 ## Windows (64 bits)
 
 Disponível na seção de releases.
