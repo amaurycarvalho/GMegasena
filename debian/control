@@ -1,0 +1,12 @@
+Source: gmegasena
+Maintainer: Amaury Carvalho <amauryspires@gmail.com>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.3
+Build-Depends: fpc, lazarus, lcl, lcl-utils, debhelper (>= 8)
+
+Package: gmegasena
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends},
+Description: Gerenciador de combinações da Mega-Sena
+ Gerenciador de combinações da Mega-Sena, com recursos de importação dos sorteios, geração de combinações, análises estatísticas básicas e via redes neurais. Implementação de Redes Neurais adaptado de João Paulo Schwarz Schuler a partir do portal CAI (Conscious Artificial Intelligence).

@@ -26,6 +26,10 @@
 #*.obj
 #
 
+# Custom files
+build.sh
+GMegaSena
+
 # Delphi compiler-generated binaries (safe to delete)
 *.exe
 *.dll

@@ -1,0 +1,20 @@
+#!/usr/bin/make -f
+
+ROOT = $(CURDIR)/debian/gmegasena
+
+override_dh_auto_clean:
+	$(RM) -r lib
+	$(RM) lib *.res GMegaSena
+
+override_dh_auto_build:
+	lazbuild --ws=gtk2 --pcp=/tmp/.lazarus GMegaSena.lpi
+
+override_dh_auto_install:
+	install -d -m 755 $(ROOT)/usr/bin
+	install -s -m 755 GMegaSena $(ROOT)/usr/bin
+	install -d -m 755 $(ROOT)/usr/share/applications
+	install -m 644 GMegaSena.desktop $(ROOT)/usr/share/applications
+	install -d -m 755 $(ROOT)/usr/share/pixmaps
+	install -m 644 GMegaSena.png $(ROOT)/usr/share/pixmaps
+%:
+	dh $@

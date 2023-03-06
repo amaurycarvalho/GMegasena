@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Gerador de Combinações da Mega-Sena
+Comment=Gerador de Combinações da Mega-Sena
+Exec=/usr/bin/GMegaSena
+Icon=/usr/share/pixmaps/GMegaSena.png
+Terminal=false
+Categories=GTK;GNOME;misc;game;utility;
+
+Name[pt_BR]=Gerador de Combinações da Mega-Sena
