@@ -1,0 +1,86 @@
+name: Build a new release
+
+on:
+  push:
+#    branches: [ main ]
+    tags:
+    - 'v*.*.*.*' # v0.0.0.0
+
+jobs:
+  build:
+    name: Build all
+    uses: ./.github/workflows/build_all.yml
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions: write-all
+    steps:
+    - name: Get tag version
+      id: get_tag
+      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+    - name: Checkout
+      uses: actions/checkout@v2.0.0
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    - name: Packing linux artifact (x64) - tar.gz
+      run: |
+          tar cvzf  glotofacil-${{ steps.get_tag.outputs.VERSION }}-linux-x64-bin.tar.gz glotofacil-linux-x64-bin/*
+    - name: Setup linux artifact (x64) - .deb and .rpm
+      run: |
+          mkdir -p .debpkg/usr/bin
+          cp -av glotofacil-linux-x64-bin/* .debpkg/usr/bin
+          chmod +x .debpkg/usr/bin/*
+          mkdir -p .rpmpkg/usr/bin
+          cp -av glotofacil-linux-x64-bin/* .rpmpkg/usr/bin
+          chmod +x .rpmpkg/usr/bin/*
+    - name: Packing linux artifact (x64) - .deb
+      id: pack_deb
+      uses: jiro4989/build-deb-action@v2
+      with:
+        package: glotofacil
+        package_root: .debpkg
+        maintainer: amauryspires@gmail.com
+        version: ${{ steps.get_tag.outputs.VERSION }}
+        arch: 'amd64'
+        depends: 'debhelper (>= 8)'
+        desc: 'glotofacil package'
+#    - name: Packing linux artifact (x64) - .rpm
+#      id: pack_rpm
+#      uses: jiro4989/build-rpm-action@v2
+#      with:
+#        summary: 'glotofacil package'
+#        package: glotofacil
+#        package_root: .rpmpkg
+#        maintainer: amauryspires@gmail.com
+#        version: ${{ steps.get_tag.outputs.VERSION }}
+#        arch: 'x86_64'
+#        desc: 'glotofacil package'
+    - name: Packing macos artifact (x86_64)
+      run: |
+          sudo apt-get install genisoimage
+          genisoimage -V glotofacil -D -R -apple -no-pad -o glotofacil-${{ steps.get_tag.outputs.VERSION }}-mac-x86_64-bin.dmg glotofacil-mac-x86_64-bin
+          gzip -k glotofacil-${{ steps.get_tag.outputs.VERSION }}-mac-x86_64-bin.dmg
+          zip --junk-paths glotofacil-${{ steps.get_tag.outputs.VERSION }}-mac-x86_64-bin.zip glotofacil-mac-x86_64-bin/*
+    - name: Packing windows artifact (x64)
+      run: |
+          unzip -j -o ssl.zip
+          zip --junk-paths glotofacil-${{ steps.get_tag.outputs.VERSION }}-windows-x64-bin.zip glotofacil-windows-x64-bin/* libeay32.dll ssleay32.dll
+    - name: Create release
+      uses: actions/create-release@v1
+      id: create_release
+      with:
+        draft: false
+        prerelease: false
+        release_name: Release ${{ steps.get_tag.outputs.VERSION }}
+        tag_name: ${{ github.ref }}
+        body_path: CHANGELOG.md
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload artifacts
+      uses: alexellis/upload-assets@0.3.0
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        asset_paths: '["glotofacil*.deb", "glotofacil*-linux-*.tar.gz", "glotofacil*-mac-*.*", "glotofacil*-windows-*.zip"]'
+#  "glotofacil?[0-9]*.rpm", 
