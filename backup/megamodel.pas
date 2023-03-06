@@ -77,6 +77,9 @@ type
     function ImportFromInternet(sb: TStatusBar): boolean;
     function ImportFromInternetFile(): boolean;
     function ImportFromLocalFile(sFile: string): boolean;
+    function ImportFromLocalFileZIP(sFile: string): boolean;
+    function ImportFromLocalFileCSV(sFile: string): boolean;
+    function ImportFromLocalFileHTML(sFile: string): boolean;
     function RefreshGrid(sgGrid: TStringGrid): boolean;
     procedure RefreshTotals(sLines: TStrings);
 
@@ -170,7 +173,6 @@ begin
     try
       oHttp.AllowRedirect := True;
       oHttp.MaxRedirects := 15;
-      oHttp.ConnectTimeout:=600;
 
       sResult := oHttp.SimpleGet(sUrl);
 
@@ -357,31 +359,49 @@ end;
 
 function TMegaModel.ImportFromLocalFile(sFile: string): boolean;
 var
-  sFileUnzipped, sFileData, sTmpPath, sImportFileName: string;
-  oUnZipper: TUnZipper;
-  oIni: TMegaIni;
-  docTag: thtmldocument;
-  elsTag: tdomnodelist;
-  sList, sCSV: TStringList;
-  sStream: TStringStream;
-  sHtml, sTag, sLine: string;
-  iIndex, iMax, iDezena, iSorteio: integer;
+  sExt: string;
 begin
+
   if not FileExists(sFile) then
   begin
-    errorMessage := 'Erro durante a importação dos sorteios';
+    errorMessage := 'Arquivo inexistente';
     Result := False;
-    exit;
+  end
+  else
+  begin
+
+    sExt := UpperCase(ExtractFileExt(sFile));
+
+    if (sExt.equals('.ZIP')) then
+      Result := ImportFromLocalFileZIP(sFile)
+    else if (sExt.equals('.CSV')) then
+      Result := ImportFromLocalFileCSV(sFile)
+    else if (sExt.equals('.HTML')) then
+      Result := ImportFromLocalFileHTML(sFile)
+    else
+    begin
+      errorMessage := 'Arquivo não suportado';
+      Result := False;
+    end;
+
   end;
 
-  // descompacta o arquivo dos sorteios
+end;
+
+function TMegaModel.ImportFromLocalFileZIP(sFile: string): boolean;
+var
+  sFileUnzipped, sTmpPath, sTmpPath2, sImportFileName: string;
+  oUnZipper: TUnZipper;
+  oIni: TMegaIni;
+begin
+
+  // prepara o ambiente
 
   oIni := TMegaIni.Create;
-
   sTmpPath := IncludeTrailingPathDelimiter(oIni.TempPath);
-  sImportFileName := oIni.ImportFileName;
-
-  sFileData := IncludeTrailingPathDelimiter(oIni.DataPath) + oIni.DataFileName;
+  sTmpPath2 := oIni.TempPath;
+  sImportFileName := oIni.DataFileName;
+  oIni.Free;
 
   {$if defined(windows)}
   sFileUnzipped := sTmpPath + sImportFileName;
@@ -401,11 +421,13 @@ begin
     DeleteFile(sFileUnzipped);
   {$ifend}
 
+  // descompacta o arquivo dos sorteios
+
   oUnZipper := TUnZipper.Create;
 
   try
     oUnZipper.FileName := sFile;
-    oUnZipper.OutputPath := oIni.TempPath;
+    oUnZipper.OutputPath := sTmpPath2;
 
     try
       oUnZipper.Examine;
@@ -415,7 +437,6 @@ begin
       begin
         errorMessage := 'Erro na tentativa de descompactar sorteios: ' +
           sLineBreak + E.Message;
-        oIni.Free;
         Result := False;
         exit;
       end;
@@ -424,8 +445,6 @@ begin
   finally
     oUnZipper.Free;
   end;
-
-  oIni.Free;
 
   {$if defined(windows)}
   if not FileExists(sFileUnzipped) then
@@ -451,77 +470,181 @@ begin
   end;
   {$ifend}
 
-  // converte o arquivo descompactado de HTML para CSV
+  // carrega o arquivo CSV
 
-  sCSV := TStringList.Create;
-
-  sList := TStringList.Create;
-  sList.LoadFromFile(sFileUnzipped);
-  sHtml := sList.Text;
-  sList.Free;
-
-  sStream := TStringStream.Create(sHtml);
-  readhtmlfile(docTag, sStream);
-  sStream.Free;
-
-  elsTag := docTag.GetElementsByTagName('td');
-  iMax := elsTag.Count - 1;
-
-  iDezena := 7;
-  iSorteio := 0;
-
-  for iIndex := 0 to iMax do
-  begin
-    sTag := elsTag[iIndex].TextContent;
-
-    if iDezena < 7 then
-    begin
-      sLine := sLine + ';' + sTag;
-
-      if iDezena = 6 then
-        sCSV.Add(sLine);
-
-      iDezena := iDezena + 1;
-    end;
-
-    if pos('/', sTag) > 0 then
-    begin
-      iDezena := 1;
-      iSorteio := iSorteio + 1;
-      sLine := IntToStr(iSorteio) + ';' + sTag;
-    end;
-
-  end;
-
-  // só prossegue se a quantidade de sorteios baixado for maior que
-  // a quantidade atual em memória
-
-  iSorteio := sCSV.Count;
-  if iSorteio < ballot_history_count then
-  begin
-    errorMessage := 'Importação incompleta dos sorteios';
-    Result := False;
-    exit;
-  end
-  else if iSorteio = ballot_history_count then
-  begin
-    errorMessage := 'Não há sorteios novos a importar';
-    Result := False;
-    exit;
-  end;
-
-  // salva o arquivo CSV com os dados do sorteio
-
-  if FileExists(sFileData) then
-    DeleteFile(sFileData);
-
-  sCSV.SaveToFile(sFileData);
-  sCSV.Free;
-
-  Result := True;
+  Result := ImportFromLocalFileCSV(sFileUnzipped);
 
 end;
 
+function TMegaModel.ImportFromLocalFileCSV(sFile: string): boolean;
+var
+  sFileData, sValue: string;
+  oIni: TMegaIni;
+  sCSV, sLine: TStringList;
+begin
+
+  // prepara o ambiente
+
+  oIni := TMegaIni.Create;
+  sFileData := IncludeTrailingPathDelimiter(oIni.DataPath) + oIni.DataFileName;
+  oIni.Free;
+
+  // carrega os dados
+
+  try
+    sCSV := TStringList.Create;
+    sCSV.Delimiter := ';';
+    sCSV.LoadFromFile(sFile);
+
+    try
+      try
+        sLine := TStringList.Create;
+        sLine.Delimiter := ';';
+        sLine.DelimitedText := sCSV.Strings[0];
+        sValue := sLine.Strings[0];
+
+        if ((not sValue.equals('1')) or (sLine.Count <> 8)) then
+        begin
+          errorMessage := 'Arquivo de sorteio com conteúdo inválido';
+          Result := False;
+          Exit;
+        end;
+
+      finally
+        sLine.Free;
+      end;
+
+    except
+      on E: Exception do
+      begin
+        errorMessage := 'Erro na leitura dos sorteios: ' +
+          sLineBreak + E.Message;
+        Result := False;
+        exit;
+      end;
+    end;
+
+    // salva o arquivo CSV com os dados do sorteio
+
+    if FileExists(sFileData) then
+      DeleteFile(sFileData);
+
+    sCSV.SaveToFile(sFileData);
+    Result := True;
+
+  finally
+    sCSV.Free;
+  end;
+
+end;
+
+function TMegaModel.ImportFromLocalFileHTML(sFile: string): boolean;
+var
+  sFileData: string;
+  oIni: TMegaIni;
+  docTag: thtmldocument;
+  elsTag: tdomnodelist;
+  sList, sCSV: TStringList;
+  sStream: TStringStream;
+  sHtml, sTag, sLine: string;
+  iIndex, iMax, iDezena, iSorteio: integer;
+begin
+
+  // prepara o ambiente
+
+  oIni := TMegaIni.Create;
+  sFileData := IncludeTrailingPathDelimiter(oIni.DataPath) + oIni.DataFileName;
+  oIni.Free;
+
+  // converte o arquivo descompactado de HTML para CSV
+
+  try
+    sCSV := TStringList.Create;
+    sCSV.Delimiter := ';';
+
+    try
+
+      try
+        sList := TStringList.Create;
+        sList.LoadFromFile(sFile);
+        sHtml := sList.Text;
+      finally
+        sList.Free;
+      end;
+
+      sStream := TStringStream.Create(sHtml);
+      readhtmlfile(docTag, sStream);
+      sStream.Free;
+
+      elsTag := docTag.GetElementsByTagName('td');
+      iMax := elsTag.Count - 1;
+
+      iDezena := 7;
+      iSorteio := 0;
+      sLine := '';
+
+      for iIndex := 0 to iMax do
+      begin
+        sTag := elsTag[iIndex].TextContent;
+
+        if iDezena < 7 then
+        begin
+          sLine := sLine + ';' + sTag;
+
+          if iDezena = 6 then
+            sCSV.Add(sLine);
+
+          iDezena := iDezena + 1;
+        end;
+
+        if pos('/', sTag) > 0 then
+        begin
+          iDezena := 1;
+          iSorteio := iSorteio + 1;
+          sLine := IntToStr(iSorteio) + ';' + sTag;
+        end;
+
+      end;
+
+    except
+      on E: Exception do
+      begin
+        errorMessage := 'Erro na leitura dos sorteios: ' + sLineBreak + E.Message;
+        Result := False;
+        exit;
+      end;
+    end;
+
+    // só prossegue se a quantidade de sorteios baixado for maior que
+    // a quantidade atual em memória
+
+    iSorteio := sCSV.Count;
+    if iSorteio < ballot_history_count then
+    begin
+      errorMessage := 'Importação incompleta dos sorteios';
+      Result := False;
+      exit;
+    end
+    else if iSorteio = ballot_history_count then
+    begin
+      errorMessage := 'Não há sorteios novos a importar';
+      Result := False;
+      exit;
+    end;
+
+    // salva o arquivo CSV com os dados do sorteio
+
+    if FileExists(sFileData) then
+      DeleteFile(sFileData);
+
+    sCSV.SaveToFile(sFileData);
+    Result := True;
+
+  finally
+    sCSV.Free;
+  end;
+
+end;
 
 function TMegaModel.RefreshGrid(sgGrid: TStringGrid): boolean;
 var
@@ -1098,7 +1221,7 @@ end;
 
 procedure TMegaModel.ChartHistogram(size: integer; module: double);
 var
-  i, k, y, s, f: integer;
+  i, y, s, f: integer;
   avg, min, max, std: double;
 begin
   max := oCSN.Combine(60, 6);

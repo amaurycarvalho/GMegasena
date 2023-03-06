@@ -805,12 +805,21 @@ object Form1: TForm1
       object Button3: TButton
         Left = 8
         Height = 25
-        Top = 136
+        Top = 168
         Width = 131
         Caption = 'Parar'
         OnClick = Button3Click
         TabOrder = 4
         Visible = False
+      end
+      object Button5: TButton
+        Left = 8
+        Height = 26
+        Top = 136
+        Width = 131
+        Caption = 'Refresh'
+        OnClick = Button5Click
+        TabOrder = 5
       end
     end
     object TabSheet2: TTabSheet

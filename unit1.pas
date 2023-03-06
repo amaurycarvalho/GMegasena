@@ -31,6 +31,7 @@ type
     btCopiarApostas: TButton;
     Button3: TButton;
     Button4: TButton;
+    Button5: TButton;
     Chart1: TChart;
     cgOpcoes: TCheckGroup;
     cbHistograma: TComboBox;
@@ -99,6 +100,7 @@ type
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
     procedure cbHistogramaChange(Sender: TObject);
     procedure cbHistogramaClick(Sender: TObject);
     procedure cgOpcoesClick(Sender: TObject);
@@ -436,7 +438,7 @@ end;
 
 procedure TForm1.MenuItem14Click(Sender: TObject);
 begin
-  OpenURL('https://launchpad.net/gmegasena');
+  OpenURL('https://github.com/amaurycarvalho/GMegasena');
 end;
 
 procedure TForm1.MenuItem18Click(Sender: TObject);
@@ -460,6 +462,7 @@ begin
   btImportarInternet.Enabled := false;
   btImportarArquivo.Enabled := false;
   btCopiarSorteios.Enabled := false;
+  Button5.Enabled := false;
   TabSheet2.Enabled := false;
   TabSheet3.Enabled := false;
 
@@ -468,9 +471,7 @@ begin
   if oModel.ImportFromInternet(StatusBar1) then
   begin
 
-    MenuItem25.Click;     // refresh dos sorteios
-    Button1.Click;        // refresh das apostas (geração automática)
-    btRefreshGraf.Click;  // refresh dos gráficos
+    Button5.Click;        // refresh dos sorteios
 
     if StringGrid1.RowCount > i then
       i := StringGrid1.RowCount - i
@@ -496,6 +497,7 @@ begin
   btImportarInternet.Enabled := true;
   btImportarArquivo.Enabled := true;
   btCopiarSorteios.Enabled := true;
+  Button5.Enabled := true;
   TabSheet2.Enabled := true;
   TabSheet3.Enabled := true;
   Button3.Visible := false;
@@ -532,7 +534,7 @@ begin
     'Importando de um arquivo já baixado do portal da Caixa...';
   Application.ProcessMessages;
 
-  oOpen.Filter := 'Arquivo de sorteios da Caixa|*.zip';
+  oOpen.Filter := 'Base compactada (*.zip)|*.zip|Base descompactada (*.csv)|*.csv|Base da página da Caixa (*.html)|*.html';
   oOpen.Title := 'Abrir arquivo de sorteios da Caixa';
 
   if not oOpen.Execute then
@@ -548,9 +550,7 @@ begin
 
   if oModel.ImportFromLocalFile(sFile) then
   begin
-    MenuItem25.Click;         // refresh dos sorteios
-    Button1.Click;            // refresh das apostas (geração automática)
-    btRefreshGraf.Click;      // refresh dos gráficos
+    Button5.Click;        // refresh dos sorteios
 
     if StringGrid1.RowCount > i then
       i := StringGrid1.RowCount - i
@@ -1853,6 +1853,13 @@ begin
 
   ShowMessage('Gráfico copiado para o clipboard');
 
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+begin
+  MenuItem25.Click;     // refresh dos sorteios
+  Button1.Click;        // refresh das apostas (geração automática)
+  btRefreshGraf.Click;  // refresh dos gráficos
 end;
 
 procedure TForm1.cbHistogramaChange(Sender: TObject);
