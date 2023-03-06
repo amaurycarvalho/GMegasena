@@ -1,10 +1,10 @@
 object Form1: TForm1
-  Left = 202
+  Left = 195
   Height = 610
-  Top = 55
+  Top = 105
   Width = 1032
   Caption = 'Gerenciador de combinações da Mega-Sena'
-  ClientHeight = 585
+  ClientHeight = 586
   ClientWidth = 1032
   Icon.Data = {
     4155000000000100010000000000010020002B5500001600000089504E470D0A
@@ -695,11 +695,11 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poScreenCenter
-  LCLVersion = '1.8.2.0'
+  LCLVersion = '2.2.0.4'
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 19
-    Top = 566
+    Height = 18
+    Top = 568
     Width = 1032
     AutoHint = True
     Panels = <>
@@ -707,21 +707,21 @@ object Form1: TForm1
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 566
+    Height = 568
     Top = 0
     Width = 1032
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     Align = alClient
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 1
     Visible = False
     object TabSheet1: TTabSheet
       Caption = 'Sorteios'
-      ClientHeight = 535
+      ClientHeight = 538
       ClientWidth = 1022
       object StringGrid1: TStringGrid
         Left = 144
-        Height = 535
+        Height = 538
         Top = 0
         Width = 878
         Align = alClient
@@ -769,7 +769,7 @@ object Form1: TForm1
       end
       object Bevel3: TBevel
         Left = 0
-        Height = 535
+        Height = 538
         Top = 0
         Width = 144
         Align = alLeft
@@ -802,14 +802,24 @@ object Form1: TForm1
         OnClick = btCopiarSorteiosClick
         TabOrder = 3
       end
+      object Button3: TButton
+        Left = 8
+        Height = 25
+        Top = 136
+        Width = 131
+        Caption = 'Parar'
+        OnClick = Button3Click
+        TabOrder = 4
+        Visible = False
+      end
     end
     object TabSheet2: TTabSheet
       Caption = 'Apostas'
-      ClientHeight = 535
+      ClientHeight = 538
       ClientWidth = 1022
       object Bevel1: TBevel
         Left = 0
-        Height = 535
+        Height = 538
         Top = 0
         Width = 144
         Align = alLeft
@@ -820,16 +830,15 @@ object Form1: TForm1
         Top = 7
         Width = 131
         Caption = 'Combinações'
-        ClientHeight = 36
+        ClientHeight = 37
         ClientWidth = 129
         TabOrder = 0
         object MaskEdit1: TMaskEdit
           Left = 8
-          Height = 29
+          Height = 28
           Top = 4
           Width = 96
           Alignment = taRightJustify
-          CharCase = ecNormal
           MaxLength = 6
           TabOrder = 0
           EditMask = '######'
@@ -838,7 +847,7 @@ object Form1: TForm1
         end
         object UpDown1: TUpDown
           Left = 104
-          Height = 29
+          Height = 28
           Top = 4
           Width = 17
           Associate = MaskEdit1
@@ -846,7 +855,6 @@ object Form1: TForm1
           Min = 1
           Position = 10
           TabOrder = 1
-          Wrap = False
         end
       end
       object Button1: TButton
@@ -863,17 +871,17 @@ object Form1: TForm1
       end
       object GroupBox2: TGroupBox
         Left = 891
-        Height = 535
+        Height = 538
         Top = 0
         Width = 131
         Align = alRight
         Caption = 'Resumo'
-        ClientHeight = 517
+        ClientHeight = 521
         ClientWidth = 129
         TabOrder = 2
         object Memo1: TMemo
           Left = 0
-          Height = 517
+          Height = 521
           Top = 0
           Width = 129
           Align = alClient
@@ -906,7 +914,7 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 70
+        ClientHeight = 71
         ClientWidth = 129
         OnClick = rgVerificarClick
         TabOrder = 4
@@ -923,7 +931,7 @@ object Form1: TForm1
         end
         object RadioButton2: TRadioButton
           Left = 6
-          Height = 17
+          Height = 18
           Top = 17
           Width = 117
           Caption = '100 últimos'
@@ -933,7 +941,7 @@ object Form1: TForm1
         object RadioButton3: TRadioButton
           Left = 6
           Height = 18
-          Top = 34
+          Top = 35
           Width = 117
           Caption = 'Todos'
           OnChange = RadioButton3Change
@@ -942,7 +950,7 @@ object Form1: TForm1
         object RadioButton7: TRadioButton
           Left = 6
           Height = 18
-          Top = 52
+          Top = 53
           Width = 117
           Caption = 'Último apenas'
           OnChange = RadioButton7Change
@@ -961,7 +969,7 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 70
+        ClientHeight = 71
         ClientWidth = 129
         ItemIndex = 0
         Items.Strings = (
@@ -992,7 +1000,7 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 71
+        ClientHeight = 72
         ClientWidth = 129
         ItemIndex = 0
         Items.Strings = (
@@ -1014,17 +1022,17 @@ object Form1: TForm1
       end
       object Panel1: TPanel
         Left = 144
-        Height = 535
+        Height = 538
         Top = 0
         Width = 747
         Align = alClient
-        ClientHeight = 535
+        ClientHeight = 538
         ClientWidth = 747
         TabOrder = 9
         object Chart2: TChart
           Left = 1
           Height = 174
-          Top = 360
+          Top = 363
           Width = 745
           AxisList = <          
             item
@@ -1062,7 +1070,7 @@ object Form1: TForm1
         end
         object StringGrid2: TStringGrid
           Left = 1
-          Height = 359
+          Height = 362
           Top = 1
           Width = 745
           Align = alClient
@@ -1125,11 +1133,11 @@ object Form1: TForm1
     end
     object TabSheet3: TTabSheet
       Caption = 'Gráficos'
-      ClientHeight = 535
+      ClientHeight = 538
       ClientWidth = 1022
       object Bevel2: TBevel
         Left = 0
-        Height = 535
+        Height = 538
         Top = 0
         Width = 176
         Align = alLeft
@@ -1148,7 +1156,7 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 70
+        ClientHeight = 71
         ClientWidth = 158
         ItemIndex = 0
         Items.Strings = (
@@ -1173,7 +1181,7 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 87
+        ClientHeight = 88
         ClientWidth = 158
         ItemIndex = 0
         Items.Strings = (
@@ -1199,7 +1207,7 @@ object Form1: TForm1
         ChildSizing.ShrinkVertical = crsScaleChilds
         ChildSizing.Layout = cclLeftToRightThenTopToBottom
         ChildSizing.ControlsPerLine = 1
-        ClientHeight = 87
+        ClientHeight = 88
         ClientWidth = 158
         Items.Strings = (
           'Marca d''água'
@@ -1224,7 +1232,7 @@ object Form1: TForm1
       end
       object Chart1: TChart
         Left = 176
-        Height = 535
+        Height = 538
         Top = 0
         Width = 846
         AxisList = <        
@@ -1278,7 +1286,7 @@ object Form1: TForm1
       end
       object SpinEdit1: TSpinEdit
         Left = 8
-        Height = 29
+        Height = 28
         Hint = 'Posição na combinação'
         Top = 329
         Width = 160
@@ -1292,7 +1300,7 @@ object Form1: TForm1
       end
       object cbHistograma: TComboBox
         Left = 8
-        Height = 27
+        Height = 26
         Top = 329
         Width = 160
         ItemHeight = 0
@@ -1313,8 +1321,8 @@ object Form1: TForm1
     end
   end
   object MainMenu1: TMainMenu
-    left = 824
-    top = 288
+    Left = 824
+    Top = 288
     object MenuItem1: TMenuItem
       Caption = '&Arquivo'
       object MenuItem7: TMenuItem
@@ -1422,11 +1430,11 @@ object Form1: TForm1
   end
   object ListSource: TListChartSource
     Sorted = True
-    left = 664
-    top = 288
+    Left = 664
+    Top = 288
   end
   object ListSource2: TListChartSource
-    left = 744
-    top = 288
+    Left = 744
+    Top = 288
   end
 end

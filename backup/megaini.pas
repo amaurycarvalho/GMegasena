@@ -21,6 +21,7 @@ type
         DataFileName : string;
         ImportMode : string;
         ImportURL : string;
+        ImportJson : string;
         ImportFileName : string;
         BetsMaxSearch, BetsIgnoreLastHistory : integer;
         Slash : string;
@@ -43,7 +44,7 @@ begin
    Slash := PathDelim;
 
    {$if defined(windows)}
-        TempPath := 'C:\Temp';
+        TempPath := GetTempDir;  {'C:\Temp';}
         AppPath := IncludeTrailingPathDelimiter(GetUserDir) + 'GMegaSena';
         WGetPath := 'wget.exe';
    {$else}
@@ -55,6 +56,7 @@ begin
    DataFileName := 'gmegasena.csv';
    ImportMode := '0';
    ImportURL := 'http://www1.caixa.gov.br/loterias/_arquivos/loterias/D_megase.zip';
+   ImportJson := 'https://servicebus2.caixa.gov.br/portaldeloterias/api/lotofacil';
    ImportFileName := 'D_MEGA.HTM';
    BetsMaxSearch := 10000;
    BetsIgnoreLastHistory := 0;
@@ -72,6 +74,7 @@ begin
    DataFileName := oIni.ReadString('data', 'filename', DataFileName);
    ImportMode := oIni.ReadString('import', 'mode', ImportMode);
    ImportURL := oIni.ReadString('import', 'url', ImportURL);
+   ImportJson := oIni.ReadString('import', 'json', ImportJson);
    ImportFileName := oIni.ReadString('import', 'filename', ImportFileName);
    BetsMaxSearch := oIni.ReadInteger('bets', 'max_search', BetsMaxSearch);
    BetsIgnoreLastHistory := oIni.ReadInteger('bets', 'ignore_last_history', BetsIgnoreLastHistory);
@@ -95,6 +98,7 @@ begin
      oIni.WriteString('data', 'filename', DataFileName);
      oIni.WriteString('import', 'mode', ImportMode);
      oIni.WriteString('import', 'url', ImportURL);
+     oIni.WriteString('import', 'json', ImportJson);
      oIni.WriteString('import', 'filename', ImportFileName);
      oIni.WriteInteger('bets', 'max_search', BetsMaxSearch);
      oIni.WriteInteger('bets', 'ignore_last_history', BetsIgnoreLastHistory);

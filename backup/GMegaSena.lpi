@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="10"/>
+    <Version Value="12"/>
     <General>
+      <Flags>
+        <CompatibilityMode Value="True"/>
+      </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <MainUnit Value="0"/>
       <Title Value="GMegaSena"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -16,12 +18,11 @@
     </General>
     <VersionInfo>
       <UseVersionInfo Value="True"/>
-      <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <RevisionNr Value="1"/>
-      <BuildNr Value="12"/>
+      <RevisionNr Value="2"/>
+      <BuildNr Value="1"/>
       <Language Value="0416"/>
-      <StringTable CompanyName="Magia Imaginária" ProductName="Gerenciador de combinações da Mega-Sena" ProductVersion="1.0.1.0"/>
+      <StringTable CompanyName="Magia Imaginária" ProductName="Gerenciador de combinações da Mega-Sena" ProductVersion="1.0.2.1"/>
     </VersionInfo>
     <CustomData Count="13">
       <Item0 Name="lazpackager/copyright" Value="2019 Amaury Carvalho"/>
@@ -135,9 +136,10 @@ override_dh_auto_install:
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
-      <local>
-        <FormatVersion Value="1"/>
-      </local>
+      <FormatVersion Value="2"/>
+      <Modes Count="1">
+        <Mode0 Name="default"/>
+      </Modes>
     </RunParams>
     <RequiredPackages Count="3">
       <Item1>

@@ -29,6 +29,7 @@ type
     btImportarArquivo: TButton;
     btCopiarSorteios: TButton;
     btCopiarApostas: TButton;
+    Button3: TButton;
     Button4: TButton;
     Chart1: TChart;
     cgOpcoes: TCheckGroup;
@@ -96,6 +97,7 @@ type
     procedure btRefreshGrafClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
     procedure cbHistogramaChange(Sender: TObject);
     procedure cbHistogramaClick(Sender: TObject);
@@ -164,9 +166,9 @@ implementation
 procedure TForm1.MenuItem5Click(Sender: TObject);
 begin
   ShowMessage('Gerenciador de combinações da Mega-Sena' + sLineBreak +
-    'Desenvolvido por Amaury Carvalho' + sLineBreak + 'Fevereiro de 2019' +
+    'Desenvolvido por Amaury Carvalho' + sLineBreak + 'Fev/2019-Mar/2023' +
     sLineBreak + 'amauryspires@gmail.com' + sLineBreak +
-    'https://launchpad.net/gmegasena' + sLineBreak + sLineBreak +
+    'https://github.com/amaurycarvalho/GMegasena' + sLineBreak + sLineBreak +
     'Implementação de Redes Neurais adaptado de Joao Paulo Schwarz Schuler' +
     ' a partir do portal CAI (Conscious Artificial Intelligence).');
 
@@ -174,7 +176,7 @@ end;
 
 procedure TForm1.MenuItem6Click(Sender: TObject);
 begin
-  OpenURL('http://www.bookess.com/read/10818-loterias-uma-abordagem-computacional/');
+  OpenURL('https://www.amazon.com.br/Loterias-abordagem-computacional-Amaury-Carvalho-ebook/dp/B08N5L6PRZ');
 end;
 
 procedure TForm1.MenuItem7Click(Sender: TObject);
@@ -451,9 +453,17 @@ begin
     'Conectando ao portal da Caixa Economica Federal...';
   Application.ProcessMessages;
 
+  Button3.Visible := true;
+  MenuItem1.Enabled := false;
+  MenuItem2.Enabled := false;
+  MenuItem3.Enabled := false;
+  btImportarInternet.Enabled := false;
+  btImportarArquivo.Enabled := false;
+  btCopiarSorteios.Enabled := false;
+
   i := StringGrid1.RowCount;
 
-  if oModel.ImportFromInternet() then
+  if oModel.ImportFromInternet(StatusBar1) then
   begin
 
     MenuItem25.Click;     // refresh dos sorteios
@@ -477,6 +487,14 @@ begin
     StatusBar1.SimpleText :=
       'Tente importar novamente daqui a alguns minutos';
   end;
+
+  MenuItem1.Enabled := true;
+  MenuItem2.Enabled := true;
+  MenuItem3.Enabled := true;
+  btImportarInternet.Enabled := true;
+  btImportarArquivo.Enabled := true;
+  btCopiarSorteios.Enabled := true;
+  Button3.Visible := false;
 
 end;
 
@@ -681,6 +699,7 @@ begin
   MenuItem26.Enabled := True;
   btCopiarSorteios.Enabled := True;
   btCopiarApostas.Enabled := True;
+  Button3.Visible := False;
 end;
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -1815,6 +1834,12 @@ begin
     oModel.RefreshBets(StringGrid2);
   end;
 
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  oModel.stop := true;
+  Button3.Visible := false;
 end;
 
 procedure TForm1.Button4Click(Sender: TObject);

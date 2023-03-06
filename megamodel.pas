@@ -11,7 +11,21 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls,
   Graphics, Dialogs, ComCtrls, Menus, Grids, ExtCtrls, StdCtrls, MaskEdit,
   Process, MegaIni, CSN, Clipbrd, LCLIntf, fphttpclient, Zipper,
-  sax_html, dom_html, dom;
+  sax_html, dom_html, dom, fpjson, jsonparser, opensslsockets;
+
+type
+  TJsonMS = class(TObject)
+  public
+    tipoJogo: string;
+    numero: string;
+    numeroConcursoAnterior: string;
+    numeroConcursoProximo: string;
+    dataApuracao: string;
+    listaDezenas: string;
+    dezenasSorteadasOrdemSorteio: string;
+    ultimoConcurso: string;
+    constructor Create(json: string);
+  end;
 
 type
   TMegaModel = class(TObject)
@@ -48,6 +62,7 @@ type
     ballot_bets_total: array [0..3] of integer;
     ballot_bets_skip_last: boolean;
     has_data: boolean;
+    stop: boolean;
 
     chart_data: array of array of double;
     chart_count: integer;
@@ -59,7 +74,8 @@ type
 
     constructor Create;
 
-    function ImportFromInternet(): boolean;
+    function ImportFromInternet(sb: TStatusBar): boolean;
+    function ImportFromInternetFile(): boolean;
     function ImportFromLocalFile(sFile: string): boolean;
     function RefreshGrid(sgGrid: TStringGrid): boolean;
     procedure RefreshTotals(sLines: TStrings);
@@ -124,7 +140,159 @@ begin
 
 end;
 
-function TMegaModel.ImportFromInternet(): boolean;
+function TMegaModel.ImportFromInternet(sb: TStatusBar): boolean;
+var
+  sUrl, sResult, sCurrNumber, sRemoteNumber, sNewLine: string;
+  oHttp: TFPHttpClient;
+  oIni: TMegaIni;
+  oJson: TJsonMS;
+  sFileData: string;
+  sCSV, sLine: TStringList;
+  lastLocalNumber, currNumber, lastRemoteNumber: integer;
+  downloadCount: integer;
+begin
+
+  stop := False;
+  downloadCount := 0;
+
+  sb.SimpleText := 'Conectando ao portal da Caixa Economica Federal...';
+  Application.ProcessMessages;
+
+  oIni := TMegaIni.Create;
+
+  sUrl := oIni.ImportJson;
+  sFileData := IncludeTrailingPathDelimiter(oIni.DataPath) + oIni.DataFileName;
+
+  oHttp := TFPHttpClient.Create(nil);
+
+  try
+
+    try
+      oHttp.AllowRedirect := True;
+      oHttp.MaxRedirects := 15;
+
+      sResult := oHttp.SimpleGet(sUrl);
+
+      try
+        oJson := TJsonMS.Create(sResult);
+
+        if not oJson.tipoJogo.Equals('MEGA_SENA') then
+        begin
+          errorMessage := 'Erro na leitura dos concursos (retorno inválido)';
+          Result := False;
+          exit;
+        end;
+
+        sb.SimpleText := 'Conexão com sucesso';
+        Application.ProcessMessages;
+
+        sRemoteNumber := oJson.numero;
+        lastRemoteNumber := StrToInt(oJson.numero);
+
+      finally
+        oJson.Free;
+      end;
+
+      try
+        try
+          sCSV := TStringList.Create;
+          sCSV.Delimiter := ';';
+
+          lastLocalNumber := 0;
+
+          if FileExists(sFileData) then
+          begin
+            sCSV.LoadFromFile(sFileData);
+            try
+              sLine := TStringList.Create;
+              sLine.Delimiter := ';';
+              sLine.DelimitedText := sCSV.Strings[sCSV.Count - 1];
+              lastLocalNumber := StrToInt(sLine.Strings[0]);
+            finally
+              sLine.Free;
+            end;
+          end;
+
+          if lastLocalNumber >= lastRemoteNumber then
+          begin
+            errorMessage := 'Não há sorteios novos a importar';
+            Result := False;
+            exit;
+          end;
+
+          for currNumber := lastLocalNumber + 1 to lastRemoteNumber do
+          begin
+            sCurrNumber := IntToStr(currNumber);
+            sb.SimpleText := 'Baixando sorteio: ' + sCurrNumber + '/' + sRemoteNumber;
+            Application.ProcessMessages;
+
+            sResult := oHttp.SimpleGet(sUrl + '/' + sCurrNumber);
+
+            try
+              oJson := TJsonMS.Create(sResult);
+              if not oJson.tipoJogo.Equals('MEGA_SENA') then
+              begin
+                errorMessage := 'Erro na leitura do sorteio número: ' + sCurrNumber;
+                Result := False;
+                exit;
+              end;
+              sNewLine := sCurrNumber + ';' + oJson.dataApuracao + ';' +
+                oJson.dezenasSorteadasOrdemSorteio;
+              sCSV.Add(sNewLine);
+              downloadCount += 1;
+            finally
+              oJson.Free;
+            end;
+
+            Application.ProcessMessages;
+            if stop then
+              break;
+          end;
+
+          if FileExists(sFileData) then
+            DeleteFile(sFileData);
+
+          sCSV.SaveToFile(sFileData);
+
+          Result := True;
+
+        except
+          on E: Exception do
+          begin
+            if (downloadCount > 0) then
+            begin
+              if FileExists(sFileData) then
+                DeleteFile(sFileData);
+
+              sCSV.SaveToFile(sFileData);
+            end;
+            errorMessage := 'Erro na tentativa de download direto: ' +
+              sLineBreak + E.Message;
+            Result := False;
+          end;
+        end;
+
+      finally
+        sCSV.Free;
+      end;
+
+    except
+      on E: Exception do
+      begin
+        errorMessage := 'Erro na tentativa de download direto: ' +
+          sLineBreak + E.Message;
+        Result := False;
+      end;
+    end;
+
+  finally
+    oIni.Free;
+    oHttp.Free;
+  end;
+
+end;
+
+function TMegaModel.ImportFromInternetFile(): boolean;
 var
   sUrl, sFile, sResult: string;
   oHttp: TFPHttpClient;
@@ -1156,6 +1324,43 @@ begin
     end;
 
   end;
+
+end;
+
+constructor TJsonMS.Create(json: string);
+var
+  jData: TJSONData;
+  jObject: TJSONObject;
+  jArray: TJSONArray;
+  sLine: TStringList;
+  i: integer;
+begin
+  jData := GetJSON(json);
+  jObject := jData as TJSONObject;
+  tipoJogo := jObject.Get('tipoJogo');
+  numero := jObject.Get('numero');
+  numeroConcursoAnterior := jObject.Get('numeroConcursoAnterior');
+  numeroConcursoProximo := jObject.Get('numeroConcursoProximo');
+  dataApuracao := jObject.Get('dataApuracao');
+  ultimoConcurso := jObject.Get('ultimoConcurso');
+
+  jArray := jObject.Get('listaDezenas', TJSONArray.Create);
+  sLine := TStringList.Create;
+  sLine.Delimiter := ';';
+  for i := 0 to jArray.Count - 1 do
+  begin
+    sLine.Add(jArray.Strings[i]);
+  end;
+  listaDezenas := sLine.DelimitedText;
+
+  jArray := jObject.Get('dezenasSorteadasOrdemSorteio', TJSONArray.Create);
+  sLine.Clear;
+  for i := 0 to jArray.Count - 1 do
+  begin
+    sLine.Add(jArray.Strings[i]);
+  end;
+  dezenasSorteadasOrdemSorteio := sLine.DelimitedText;
+  sLine.Free;
 
 end;
 
