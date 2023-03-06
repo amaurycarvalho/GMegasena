@@ -25,47 +25,47 @@ jobs:
       uses: actions/download-artifact@v3
     - name: Packing linux artifact (x64) - tar.gz
       run: |
-          tar cvzf  glotofacil-${{ steps.get_tag.outputs.VERSION }}-linux-x64-bin.tar.gz glotofacil-linux-x64-bin/*
+          tar cvzf  gmegasena-${{ steps.get_tag.outputs.VERSION }}-linux-x64-bin.tar.gz gmegasena-linux-x64-bin/*
     - name: Setup linux artifact (x64) - .deb and .rpm
       run: |
           mkdir -p .debpkg/usr/bin
-          cp -av glotofacil-linux-x64-bin/* .debpkg/usr/bin
+          cp -av gmegasena-linux-x64-bin/* .debpkg/usr/bin
           chmod +x .debpkg/usr/bin/*
           mkdir -p .rpmpkg/usr/bin
-          cp -av glotofacil-linux-x64-bin/* .rpmpkg/usr/bin
+          cp -av gmegasena-linux-x64-bin/* .rpmpkg/usr/bin
           chmod +x .rpmpkg/usr/bin/*
     - name: Packing linux artifact (x64) - .deb
       id: pack_deb
       uses: jiro4989/build-deb-action@v2
       with:
-        package: glotofacil
+        package: gmegasena
         package_root: .debpkg
         maintainer: amauryspires@gmail.com
         version: ${{ steps.get_tag.outputs.VERSION }}
         arch: 'amd64'
         depends: 'debhelper (>= 8)'
-        desc: 'glotofacil package'
+        desc: 'gmegasena package'
 #    - name: Packing linux artifact (x64) - .rpm
 #      id: pack_rpm
 #      uses: jiro4989/build-rpm-action@v2
 #      with:
-#        summary: 'glotofacil package'
-#        package: glotofacil
+#        summary: 'gmegasena package'
+#        package: gmegasena
 #        package_root: .rpmpkg
 #        maintainer: amauryspires@gmail.com
 #        version: ${{ steps.get_tag.outputs.VERSION }}
 #        arch: 'x86_64'
-#        desc: 'glotofacil package'
+#        desc: 'gmegasena package'
     - name: Packing macos artifact (x86_64)
       run: |
           sudo apt-get install genisoimage
-          genisoimage -V glotofacil -D -R -apple -no-pad -o glotofacil-${{ steps.get_tag.outputs.VERSION }}-mac-x86_64-bin.dmg glotofacil-mac-x86_64-bin
-          gzip -k glotofacil-${{ steps.get_tag.outputs.VERSION }}-mac-x86_64-bin.dmg
-          zip --junk-paths glotofacil-${{ steps.get_tag.outputs.VERSION }}-mac-x86_64-bin.zip glotofacil-mac-x86_64-bin/*
+          genisoimage -V gmegasena -D -R -apple -no-pad -o gmegasena-${{ steps.get_tag.outputs.VERSION }}-mac-x86_64-bin.dmg gmegasena-mac-x86_64-bin
+          gzip -k gmegasena-${{ steps.get_tag.outputs.VERSION }}-mac-x86_64-bin.dmg
+          zip --junk-paths gmegasena-${{ steps.get_tag.outputs.VERSION }}-mac-x86_64-bin.zip gmegasena-mac-x86_64-bin/*
     - name: Packing windows artifact (x64)
       run: |
           unzip -j -o ssl.zip
-          zip --junk-paths glotofacil-${{ steps.get_tag.outputs.VERSION }}-windows-x64-bin.zip glotofacil-windows-x64-bin/* libeay32.dll ssleay32.dll
+          zip --junk-paths gmegasena-${{ steps.get_tag.outputs.VERSION }}-windows-x64-bin.zip gmegasena-windows-x64-bin/* libeay32.dll ssleay32.dll
     - name: Create release
       uses: actions/create-release@v1
       id: create_release
@@ -82,5 +82,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        asset_paths: '["glotofacil*.deb", "glotofacil*-linux-*.tar.gz", "glotofacil*-mac-*.*", "glotofacil*-windows-*.zip"]'
-#  "glotofacil?[0-9]*.rpm", 
+        asset_paths: '["gmegasena*.deb", "gmegasena*-linux-*.tar.gz", "gmegasena*-mac-*.*", "gmegasena*-windows-*.zip"]'
+#  "gmegasena?[0-9]*.rpm", 

@@ -19,19 +19,15 @@ jobs:
       with:
         lazarus-version: "stable"
         with-cache: true    
-#      run: |
-#           export DEBIAN_FRONTEND=noninteractive
-#           sudo apt-get update
-#           sudo apt-get install -y lazarus    
     - name: Checkout
       uses: actions/checkout@v2.0.0
     - name: Make
-      run: lazbuild GeraLF.lpi
+      run: lazbuild GMegaSena.lpi
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: glotofacil-linux-x64-bin
-        path: GLotofacil
+        name: gmegasena-linux-x64-bin
+        path: GMegaSena
 
   build-windows-x64:
     runs-on: windows-latest
@@ -41,18 +37,15 @@ jobs:
       with:
         lazarus-version: "dist"
         with-cache: false    
-#      run: |
-#           choco install lazarus
     - name: Checkout
       uses: actions/checkout@v2
     - name: Make
-      run: lazbuild GeraLF.lpi
-#      run: C:\lazarus\lazbuild GeraLF.lpi
+      run: lazbuild GMegaSena.lpi
     - name: Upload artifact (64bits)
       uses: actions/upload-artifact@v3
       with:
-        name: glotofacil-windows-x64-bin
-        path: GLotofacil.exe        
+        name: gmegasena-windows-x64-bin
+        path: GMegaSena.exe        
 
   build-mac-x86_64:
     runs-on: macos-latest
@@ -62,16 +55,12 @@ jobs:
       with:
         lazarus-version: "stable"
         with-cache: true    
-#      run: |
-#           brew update
-#           brew install lazarus
     - name: Checkout
       uses: actions/checkout@v2.0.0
     - name: Make
-      run: lazbuild --ws=cocoa GeraLF.lpi
-#      run: /Applications/Lazarus/lazbuild --ws=cocoa GeraLF.lpi
+      run: lazbuild --ws=cocoa GMegaSena.lpi
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: glotofacil-mac-x86_64-bin
-        path: GLotofacil*        
+        name: gmegasena-mac-x86_64-bin
+        path: GMegaSena*        
