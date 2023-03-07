@@ -51,6 +51,8 @@ type
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
+    MenuItem15: TMenuItem;
+    MenuItem16: TMenuItem;
     MenuItem17: TMenuItem;
     MenuItem18: TMenuItem;
     MenuItem19: TMenuItem;
@@ -64,7 +66,10 @@ type
     MenuItem26: TMenuItem;
     MenuItem27: TMenuItem;
     MenuItem28: TMenuItem;
+    MenuItem29: TMenuItem;
     MenuItem3: TMenuItem;
+    MenuItem30: TMenuItem;
+    MenuItem31: TMenuItem;
     MenuItem4: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem6: TMenuItem;
@@ -73,6 +78,9 @@ type
     MenuItem9: TMenuItem;
     PageControl1: TPageControl;
     Panel1: TPanel;
+    PopupMenu1: TPopupMenu;
+    PopupMenu2: TPopupMenu;
+    PopupMenu3: TPopupMenu;
     ProgressBar1: TProgressBar;
     RadioButton1: TRadioButton;
     RadioButton2: TRadioButton;
@@ -110,6 +118,8 @@ type
     procedure MenuItem10Click(Sender: TObject);
     procedure MenuItem13Click(Sender: TObject);
     procedure MenuItem14Click(Sender: TObject);
+    procedure MenuItem15Click(Sender: TObject);
+    procedure MenuItem16Click(Sender: TObject);
     procedure MenuItem18Click(Sender: TObject);
     procedure MenuItem19Click(Sender: TObject);
     procedure MenuItem20Click(Sender: TObject);
@@ -119,6 +129,9 @@ type
     procedure MenuItem25Click(Sender: TObject);
     procedure MenuItem27Click(Sender: TObject);
     procedure MenuItem28Click(Sender: TObject);
+    procedure MenuItem29Click(Sender: TObject);
+    procedure MenuItem30Click(Sender: TObject);
+    procedure MenuItem31Click(Sender: TObject);
     procedure MenuItem4Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem6Click(Sender: TObject);
@@ -441,6 +454,33 @@ begin
   OpenURL('https://github.com/amaurycarvalho/GMegasena');
 end;
 
+procedure TForm1.MenuItem15Click(Sender: TObject);
+var
+  i: integer;
+  sl: TStringList;
+begin
+
+  sl := TStringList.Create;
+
+  for i := 1 to StringGrid2.RowCount - 1 do
+  begin
+    sl.Add(StringGrid2.Cells[1,i]+', '+StringGrid2.Cells[2,i]+', '+StringGrid2.Cells[3,i]+', '+StringGrid2.Cells[4,i]+', '+StringGrid2.Cells[5,i]+', '+StringGrid2.Cells[6,i]);
+  end;
+
+  clipboard.Clear;
+  clipboard.AsText := sl.Text;
+
+  sl.Free;
+
+  ShowMessage('Copiado para a área de transferência');
+
+end;
+
+procedure TForm1.MenuItem16Click(Sender: TObject);
+begin
+  MenuItem22.Click;
+end;
+
 procedure TForm1.MenuItem18Click(Sender: TObject);
 begin
   OpenURL('https://sourceforge.net/projects/cai/files/');
@@ -651,6 +691,21 @@ begin
 
   ShowMessage(sMsg);
 
+end;
+
+procedure TForm1.MenuItem29Click(Sender: TObject);
+begin
+  MenuItem13.Click;
+end;
+
+procedure TForm1.MenuItem30Click(Sender: TObject);
+begin
+  MenuItem23.Click;
+end;
+
+procedure TForm1.MenuItem31Click(Sender: TObject);
+begin
+  MenuItem15.Click;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
